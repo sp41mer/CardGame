@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+    <title>MMGame</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
+
+    <script type="text/javascript">
+
+
+        $( init );
+
+        function init() {
+            // Hide the success message
+            $('#successMessage').hide();
+            $('#successMessage').css( {
+                left: '580px',
+                top: '250px',
+                width: 0,
+                height: 0
+            } );
+            // Reset the game
+            userOneScore = 0;
+            userTwoScore = 0;
+            correctCards = 0;
+            allCards = 0;
+            $('#cardPile').html( '' );
+            $('#cardSlots').html( '' );
+            $('#cardPile2').html( '' );
+            $('#cardSlots2').html( '' );
+            // Create the pile of shuffled cards
+            var numbers = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+            numbers.sort( function() { return Math.random() - .5 } );
+            for ( var i=0; i<10; i++ ) {
+                $('<div>' + numbers[i] + '</div>').data( 'number', numbers[i] ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile' ).draggable( {
+                    containment: '#content',
+                    stack: '#cardPile div',
+                    cursor: 'move',
+                    revert: true
+                } );
+            }
+            numbers.sort( function() { return Math.random() - .5 } );
+            for ( var i=0; i<10; i++ ) {
+                $('<div>' + numbers[i] + '</div>').data( 'number', numbers[i] ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile2' ).draggable( {
+                    containment: '#content',
+                    stack: '#cardPile2 div',
+                    cursor: 'move',
+                    revert: true
+                } );
+            }
+            // Create the card slots
+            var words = [ 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten' ];
+            for ( var i=1; i<=3; i++ ) {
+                $('<div> </div>').data( 'user', 1 ).appendTo( '#cardSlots' ).droppable( {
+                    accept: '#cardPile div',
+                    hoverClass: 'hovered',
+                    drop: handleCardDrop
+                } );
+            }
+            for ( var i=1; i<=3; i++ ) {
+                $('<div></div>').data( 'user', 2 ).appendTo( '#cardSlots2' ).droppable( {
+                    accept: '#cardPile2 div',
+                    hoverClass: 'hovered',
+                    drop: handleCardDrop
+                } );
+            }
+        }
+
+        function handleCardDrop( event, ui ) {
+            var cardNumber = ui.draggable.data( 'number' );
+            var userName = $(this).data('user');
+            // If the card was dropped to the correct slot,
+            // change the card colour, position it directly
+            // on top of the slot, and prevent it being dragged
+            // again
+            ui.draggable.addClass( 'correct' );
+            ui.draggable.draggable( 'disable' );
+            $(this).droppable( 'disable' );
+            ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
+            ui.draggable.draggable( 'option', 'revert', false );
+            if (userName == 1){
+                userOneScore += cardNumber;
+            }
+            else {
+                userTwoScore += cardNumber;
+            }
+            allCards++;
+            // If all the cards have been placed correctly then display a message
+            // and reset the cards for another go
+            if ( allCards == 6 ) {
+                if (userOneScore > userTwoScore) {
+                    alert("player 1 wins and scores:"+userOneScore);
+                }
+                else {
+                    alert("player 2 wins and scores:"+userTwoScore);
+                }
+                $('#successMessage').show();
+                $('#successMessage').animate( {
+                    left: '380px',
+                    top: '200px',
+                    width: '400px',
+                    height: '100px',
+                    opacity: 1
+                } );
+            }
+        }
+
+
+    </script>
+
+</head>
+<body>
+
+<div id="content">
+
+    <div id="cardPile">
+        <!--Стек карт первого игрока-->
+    </div>
+    <div id="cardSlots">
+        <!--Слоты для карт первого игрока-->
+    </div>
+    <div id = "cardSlots2">
+        <!--Слоты для карт второго игрока-->
+    </div>
+    <div id = "cardPile2">
+        <!--Стек карт второго игрока-->
+    </div>
+
+    <div id="successMessage">
+        <h2>Game Over!</h2>
+        <button onclick="init()">Play Again</button>
+    </div>
+
+</div>
+
+</body>
+</html>
